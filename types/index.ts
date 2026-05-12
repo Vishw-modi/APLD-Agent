@@ -44,6 +44,12 @@ export interface TableRow {
   [key: string]: string | number;
 }
 
+export interface GeneratedTable {
+  name: string;
+  description: string;
+  link: string;
+}
+
 export interface AnalysisResult {
   summary: string;
   insights: string[];
@@ -57,6 +63,7 @@ export interface AnalysisResult {
   pieChartTitle: string;
   lineChartTitle: string;
   tableTitle: string;
+  generatedTables?: GeneratedTable[];
 }
 
 export type AnalysisPhase =

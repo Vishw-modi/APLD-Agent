@@ -23,6 +23,7 @@ import {
   BarChart3,
   PieChartIcon,
   LineChartIcon,
+  FileText,
 } from "lucide-react";
 
 interface Props {
@@ -231,6 +232,38 @@ export default function ResultsDashboard({ result, analysisName }: Props) {
           </table>
         </div>
       </div>
+
+      {/* Generated Data Artifacts */}
+      {result.generatedTables && result.generatedTables.length > 0 && (
+        <div className="rounded-2xl border border-border bg-white shadow-sm overflow-hidden transition-shadow hover:shadow-subtle mt-6">
+          <div className="px-6 py-5 border-b border-border bg-surface/30">
+            <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
+              <FileText className="h-4 w-4 text-primary" />
+              Generated Data Artifacts
+            </h3>
+            <p className="text-xs text-text-secondary mt-1">
+              Download the final and intermediate datasets created during this analysis pipeline.
+            </p>
+          </div>
+          <div className="divide-y divide-border-light">
+            {result.generatedTables.map((table, idx) => (
+              <div key={idx} className="p-4 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-primary/5 transition-colors">
+                <div>
+                  <h4 className="text-sm font-medium text-text-primary">{table.name}</h4>
+                  <p className="text-xs text-text-secondary mt-0.5">{table.description}</p>
+                </div>
+                <a
+                  href={table.link}
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-text-primary shadow-sm hover:bg-surface hover:text-primary transition-all"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Download CSV
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Download Link */}
       <div className="flex justify-center pt-4">

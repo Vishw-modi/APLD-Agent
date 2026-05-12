@@ -66,6 +66,23 @@ export const dummyResultsByType: Record<string, AnalysisResult> = {
     ],
     tableTitle: "Detailed Switch Pathway Analysis",
     downloadLink: "#download-switch-analysis-results",
+    generatedTables: [
+      {
+        name: "Final Analysis Dataset",
+        description: "Complete patient-level dataset with calculated switch pathways and triggers.",
+        link: "#download-final-dataset",
+      },
+      {
+        name: "Cohort Attrition Table",
+        description: "Intermediate table showing patient counts at each inclusion/exclusion step.",
+        link: "#download-attrition",
+      },
+      {
+        name: "Monthly Switch Events",
+        description: "Aggregated time-series data of switch events by month.",
+        link: "#download-monthly-events",
+      },
+    ],
   },
 
   "market-sizing": {
@@ -116,6 +133,18 @@ export const dummyResultsByType: Record<string, AnalysisResult> = {
     ],
     tableTitle: "Market Sizing Summary",
     downloadLink: "#download-market-sizing-results",
+    generatedTables: [
+      {
+        name: "Total Projected Market",
+        description: "Patient counts extrapolated across all regions with demographics.",
+        link: "#download-projected-market",
+      },
+      {
+        name: "Diagnosis Codes Frequencies",
+        description: "Raw frequency counts of all ICD-10 codes used for inclusion.",
+        link: "#download-icd10-frequencies",
+      },
+    ],
   },
 };
 
@@ -170,4 +199,16 @@ export const defaultDummyResult: AnalysisResult = {
   ],
   tableTitle: "Key Analysis Metrics",
   downloadLink: "#download-analysis-results",
+  generatedTables: [
+    {
+      name: "Master Cohort Dataset",
+      description: "The final merged patient-level dataset used for the analysis.",
+      link: "#download-master-cohort",
+    },
+    {
+      name: "Summary Statistics",
+      description: "Aggregated statistical measures across all key variables.",
+      link: "#download-summary-stats",
+    },
+  ],
 };
