@@ -1,0 +1,169 @@
+"use client";
+
+import { BusinessRule } from "@/types";
+import { Plus, Trash2 } from "lucide-react";
+
+interface Props {
+  rules: BusinessRule[];
+  onRulesChange: (rules: BusinessRule[]) => void;
+  additionalInfo: string;
+  onAdditionalInfoChange: (info: string) => void;
+  onConfirm: () => void;
+  onContinueChat: () => void;
+}
+
+export default function BusinessRulesTable({
+  rules,
+  onRulesChange,
+  additionalInfo,
+  onAdditionalInfoChange,
+  onConfirm,
+  onContinueChat,
+}: Props) {
+  const updateRule = (id: string, field: keyof BusinessRule, value: string | boolean) => {
+    onRulesChange(
+      rules.map((r) => (r.id === id ? { ...r, [field]: value } : r))
+    );
+  };
+
+  const addRow = () => {
+    const newRule: BusinessRule = {
+      id: `custom-${Date.now()}`,
+      parameter: "",
+      description: "",
+      value: "",
+      enabled: true,
+    };
+    onRulesChange([...rules, newRule]);
+  };
+
+  const removeRule = (id: string) => {
+    onRulesChange(rules.filter((r) => r.id !== id));
+  };
+
+  return (
+    <div className="animate-slide-up">
+      {/* Table */}
+      <div className="overflow-x-auto rounded-xl border border-border bg-white shadow-sm">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-primary text-white">
+              <th className="px-4 py-3 text-left font-semibold w-[200px]">Parameter</th>
+              <th className="px-4 py-3 text-left font-semibold">Description</th>
+              <th className="px-4 py-3 text-left font-semibold w-[240px]">Value (editable)</th>
+              <th className="px-4 py-3 text-center font-semibold w-[80px]">Active</th>
+              <th className="px-4 py-3 text-center font-semibold w-[50px]"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {rules.map((rule, idx) => (
+              <tr
+                key={rule.id}
+                className={`border-b border-border-light transition-colors hover:bg-primary/3 ${
+                  idx % 2 === 0 ? "bg-white" : "bg-surface/50"
+                }`}
+              >
+                <td className="px-4 py-2.5">
+                  <input
+                    type="text"
+                    value={rule.parameter}
+                    onChange={(e) =>
+                      updateRule(rule.id, "parameter", e.target.value)
+                    }
+                    className="w-full bg-transparent font-medium text-text-primary outline-none focus:bg-white focus:ring-1 focus:ring-primary/30 rounded px-1 py-0.5 -ml-1"
+                    placeholder="Parameter name"
+                  />
+                </td>
+                <td className="px-4 py-2.5">
+                  <input
+                    type="text"
+                    value={rule.description}
+                    onChange={(e) =>
+                      updateRule(rule.id, "description", e.target.value)
+                    }
+                    className="w-full bg-transparent text-text-secondary outline-none focus:bg-white focus:ring-1 focus:ring-primary/30 rounded px-1 py-0.5 -ml-1"
+                    placeholder="Description"
+                  />
+                </td>
+                <td className="px-4 py-2.5">
+                  <input
+                    type="text"
+                    value={rule.value}
+                    onChange={(e) =>
+                      updateRule(rule.id, "value", e.target.value)
+                    }
+                    className="w-full bg-white border border-border rounded-lg px-3 py-1.5 text-text-primary outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors"
+                    placeholder="Enter value"
+                  />
+                </td>
+                <td className="px-4 py-2.5 text-center">
+                  <label className="relative inline-flex cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={rule.enabled}
+                      onChange={(e) =>
+                        updateRule(rule.id, "enabled", e.target.checked)
+                      }
+                      className="sr-only peer"
+                    />
+                    <div className="h-5 w-9 rounded-full bg-border peer-checked:bg-primary transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow-sm after:transition-transform peer-checked:after:translate-x-4" />
+                  </label>
+                </td>
+                <td className="px-2 py-2.5 text-center">
+                  <button
+                    onClick={() => removeRule(rule.id)}
+                    className="p-1 rounded text-text-muted hover:text-danger hover:bg-danger/10 transition-colors"
+                    title="Remove rule"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* Add Row */}
+        <div className="border-t border-border p-3">
+          <button
+            onClick={addRow}
+            className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary-dark transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            Add Row
+          </button>
+        </div>
+      </div>
+
+      {/* Additional info text area */}
+      <div className="mt-4">
+        <label className="block text-sm font-medium text-text-primary mb-2">
+          Additional Business Rules or Context
+        </label>
+        <textarea
+          value={additionalInfo}
+          onChange={(e) => onAdditionalInfoChange(e.target.value)}
+          rows={3}
+          placeholder="Enter any complex business rules, additional context, or special instructions that would help the AI produce more accurate analysis..."
+          className="w-full rounded-xl border border-border bg-white px-4 py-3 text-sm text-text-primary placeholder:text-text-muted outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all resize-none"
+        />
+      </div>
+
+      {/* Action Buttons */}
+      <div className="mt-5 flex flex-col sm:flex-row gap-3">
+        <button
+          onClick={onConfirm}
+          className="flex-1 rounded-xl bg-success py-3 px-6 text-sm font-semibold text-white transition-all hover:bg-success-light hover:shadow-md hover:shadow-success/20 active:scale-[0.98]"
+        >
+          Confirm Business Rules
+        </button>
+        <button
+          onClick={onContinueChat}
+          className="flex-1 rounded-xl bg-primary py-3 px-6 text-sm font-semibold text-white transition-all hover:bg-primary-dark hover:shadow-md hover:shadow-primary/20 active:scale-[0.98]"
+        >
+          Continue to Chat with Bot to Refine Business Rules
+        </button>
+      </div>
+    </div>
+  );
+}
