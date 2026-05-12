@@ -39,21 +39,21 @@ export default function AnalysisCard({ analysis, onClick, index }: Props) {
       id={`analysis-card-${analysis.id}`}
       style={{ animationDelay: `${index * 60}ms` }}
       className={`
-        group relative flex flex-col items-start gap-3 rounded-xl p-6 text-left
+        group relative flex flex-col items-start gap-3 rounded-2xl p-6 text-left
         transition-all duration-300 ease-out animate-slide-up
-        hover:-translate-y-1 hover:shadow-lg active:scale-[0.98]
+        hover:-translate-y-1.5 hover:shadow-floating active:scale-[0.98]
         ${
           isHighlighted
-            ? "bg-gradient-to-br from-accent to-accent-dark text-white shadow-md shadow-accent/20 col-span-full sm:col-span-2 lg:col-span-full"
-            : "bg-white border border-border hover:border-primary/30 hover:shadow-primary/5"
+            ? "bg-gradient-to-br from-accent to-accent-dark text-white shadow-elevated shadow-accent/20 col-span-full sm:col-span-2 lg:col-span-full"
+            : "bg-white border border-border hover:border-primary/40 shadow-sm hover:shadow-elevated"
         }
       `}
     >
       <div
-        className={`flex h-11 w-11 items-center justify-center rounded-lg transition-colors ${
+        className={`flex h-12 w-12 items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 ${
           isHighlighted
-            ? "bg-white/20"
-            : "bg-primary/8 group-hover:bg-primary/15"
+            ? "bg-white/20 shadow-inner"
+            : "bg-primary/8 group-hover:bg-primary/15 text-primary"
         }`}
       >
         <Icon

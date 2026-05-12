@@ -27,12 +27,12 @@ export default function RefineChatModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-text-primary/40 backdrop-blur-sm animate-fade-in"
+        className="absolute inset-0 bg-text-primary/60 backdrop-blur-md animate-fade-in"
         onClick={onClose}
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-2xl rounded-2xl bg-white shadow-2xl animate-scale-in flex flex-col h-[80vh]">
+      <div className="relative w-full max-w-2xl rounded-2xl bg-white shadow-floating animate-scale-in flex flex-col h-[80vh]">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-6 py-4 shrink-0">
           <div className="flex items-center gap-3">

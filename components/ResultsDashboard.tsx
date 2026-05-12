@@ -34,12 +34,12 @@ export default function ResultsDashboard({ result, analysisName }: Props) {
   return (
     <div className="space-y-6 animate-slide-up">
       {/* Header */}
-      <div className="rounded-xl bg-gradient-to-r from-primary to-primary-light p-6 text-white shadow-md">
-        <div className="flex items-start gap-3">
-          <TrendingUp className="h-6 w-6 mt-0.5 shrink-0" />
+      <div className="rounded-2xl bg-gradient-to-br from-primary to-primary-light p-8 text-white shadow-elevated">
+        <div className="flex items-start gap-4">
+          <TrendingUp className="h-7 w-7 mt-0.5 shrink-0" />
           <div>
-            <h2 className="text-lg font-bold">Analysis Complete — {analysisName}</h2>
-            <p className="mt-2 text-sm leading-relaxed text-white/85">
+            <h2 className="text-xl font-bold tracking-tight">Analysis Complete — {analysisName}</h2>
+            <p className="mt-2.5 text-sm leading-relaxed text-white/90 max-w-3xl">
               {result.summary}
             </p>
           </div>
@@ -47,21 +47,21 @@ export default function ResultsDashboard({ result, analysisName }: Props) {
       </div>
 
       {/* Key Insights */}
-      <div className="rounded-xl border border-border bg-white p-5 shadow-sm">
-        <h3 className="text-sm font-semibold text-text-primary mb-3 flex items-center gap-2">
+      <div className="rounded-2xl border border-border bg-white p-6 shadow-sm transition-shadow hover:shadow-subtle">
+        <h3 className="text-sm font-semibold text-text-primary mb-4 flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-primary" />
           Key Insights
         </h3>
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2">
           {result.insights.map((insight, idx) => (
             <div
               key={idx}
-              className="flex items-start gap-2 rounded-lg bg-surface p-3"
+              className="flex items-start gap-3 rounded-xl bg-surface/50 p-4 transition-colors hover:bg-surface"
             >
-              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                 {idx + 1}
               </span>
-              <p className="text-sm text-text-secondary">{insight}</p>
+              <p className="text-sm leading-relaxed text-text-secondary">{insight}</p>
             </div>
           ))}
         </div>
@@ -70,7 +70,7 @@ export default function ResultsDashboard({ result, analysisName }: Props) {
       {/* Charts Grid */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Bar Chart */}
-        <div className="rounded-xl border border-border bg-white p-5 shadow-sm">
+        <div className="rounded-2xl border border-border bg-white p-6 shadow-sm transition-shadow hover:shadow-subtle">
           <h3 className="text-sm font-semibold text-text-primary mb-4 flex items-center gap-2">
             <BarChart3 className="h-4 w-4 text-primary" />
             {result.barChartTitle}
@@ -104,7 +104,7 @@ export default function ResultsDashboard({ result, analysisName }: Props) {
         </div>
 
         {/* Pie Chart */}
-        <div className="rounded-xl border border-border bg-white p-5 shadow-sm">
+        <div className="rounded-2xl border border-border bg-white p-6 shadow-sm transition-shadow hover:shadow-subtle">
           <h3 className="text-sm font-semibold text-text-primary mb-4 flex items-center gap-2">
             <PieChartIcon className="h-4 w-4 text-primary" />
             {result.pieChartTitle}
@@ -127,9 +127,10 @@ export default function ResultsDashboard({ result, analysisName }: Props) {
               </Pie>
               <Tooltip
                 contentStyle={{
-                  borderRadius: "8px",
+                  borderRadius: "12px",
                   border: "1px solid #E2E8F0",
                   fontSize: "12px",
+                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
                 }}
               />
             </PieChart>
@@ -138,7 +139,7 @@ export default function ResultsDashboard({ result, analysisName }: Props) {
       </div>
 
       {/* Line Chart */}
-      <div className="rounded-xl border border-border bg-white p-5 shadow-sm">
+      <div className="rounded-2xl border border-border bg-white p-6 shadow-sm transition-shadow hover:shadow-subtle">
         <h3 className="text-sm font-semibold text-text-primary mb-4 flex items-center gap-2">
           <LineChartIcon className="h-4 w-4 text-primary" />
           {result.lineChartTitle}
@@ -157,39 +158,40 @@ export default function ResultsDashboard({ result, analysisName }: Props) {
             />
             <Tooltip
               contentStyle={{
-                borderRadius: "8px",
+                borderRadius: "12px",
                 border: "1px solid #E2E8F0",
                 fontSize: "12px",
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
               }}
             />
             <Legend
-              wrapperStyle={{ fontSize: "12px" }}
+              wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }}
             />
             <Line
               type="monotone"
               dataKey="value"
               name="Group A"
               stroke="#0F6D8E"
-              strokeWidth={2}
+              strokeWidth={3}
               dot={{ r: 4, fill: "#0F6D8E" }}
-              activeDot={{ r: 6 }}
+              activeDot={{ r: 6, strokeWidth: 0 }}
             />
             <Line
               type="monotone"
               dataKey="value2"
               name="Group B"
               stroke="#E8913A"
-              strokeWidth={2}
+              strokeWidth={3}
               dot={{ r: 4, fill: "#E8913A" }}
-              activeDot={{ r: 6 }}
+              activeDot={{ r: 6, strokeWidth: 0 }}
             />
           </LineChart>
         </ResponsiveContainer>
       </div>
 
       {/* Data Table */}
-      <div className="rounded-xl border border-border bg-white shadow-sm overflow-hidden">
-        <div className="px-5 py-4 border-b border-border">
+      <div className="rounded-2xl border border-border bg-white shadow-sm overflow-hidden transition-shadow hover:shadow-subtle">
+        <div className="px-6 py-5 border-b border-border bg-surface/30">
           <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
             <Table2 className="h-4 w-4 text-primary" />
             {result.tableTitle}
@@ -198,11 +200,11 @@ export default function ResultsDashboard({ result, analysisName }: Props) {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-surface">
+              <tr className="bg-surface/60 border-b border-border">
                 {result.tableColumns.map((col) => (
                   <th
                     key={col.key}
-                    className="px-4 py-3 text-left font-semibold text-text-primary"
+                    className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
                   >
                     {col.label}
                   </th>
@@ -213,12 +215,12 @@ export default function ResultsDashboard({ result, analysisName }: Props) {
               {result.tableRows.map((row, idx) => (
                 <tr
                   key={idx}
-                  className="border-b border-border-light hover:bg-surface/50 transition-colors"
+                  className="border-b border-border-light hover:bg-primary/5 transition-colors"
                 >
                   {result.tableColumns.map((col) => (
                     <td
                       key={col.key}
-                      className="px-4 py-3 text-text-secondary"
+                      className="px-6 py-3.5 text-text-secondary"
                     >
                       {row[col.key]}
                     </td>
@@ -231,12 +233,12 @@ export default function ResultsDashboard({ result, analysisName }: Props) {
       </div>
 
       {/* Download Link */}
-      <div className="flex justify-center">
+      <div className="flex justify-center pt-4">
         <a
           href={result.downloadLink}
-          className="flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-primary-dark hover:shadow-md hover:shadow-primary/20"
+          className="group flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary-light px-8 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:shadow-elevated hover:shadow-primary/20 hover:-translate-y-0.5 active:scale-95"
         >
-          <Download className="h-4 w-4" />
+          <Download className="h-5 w-5 transition-transform duration-300 group-hover:-translate-y-0.5" />
           Download Full Analysis Report
         </a>
       </div>

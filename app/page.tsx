@@ -22,10 +22,12 @@ export default function LandingPage() {
     setModalOpen(true);
   };
 
-  const handleDatasetSelect = (dataset: Dataset) => {
+  const handleDatasetSelect = (selectedDatasets: Dataset[]) => {
     setModalOpen(false);
+    const ids = selectedDatasets.map((d) => d.id).join(",");
+    const names = selectedDatasets.map((d) => d.name).join(", ");
     router.push(
-      `/analysis/${selectedAnalysis}?dataset=${dataset.id}&datasetName=${encodeURIComponent(dataset.name)}`
+      `/analysis/${selectedAnalysis}?dataset=${ids}&datasetName=${encodeURIComponent(names)}`
     );
   };
 

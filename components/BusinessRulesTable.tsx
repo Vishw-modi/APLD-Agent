@@ -46,12 +46,12 @@ export default function BusinessRulesTable({
       {/* Table */}
       <div className="overflow-x-auto rounded-xl border border-border bg-white shadow-sm">
         <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-primary text-white">
-              <th className="px-4 py-3 text-left font-semibold w-[200px]">Parameter</th>
-              <th className="px-4 py-3 text-left font-semibold">Description</th>
-              <th className="px-4 py-3 text-left font-semibold w-[240px]">Value (editable)</th>
-              <th className="px-4 py-3 text-center font-semibold w-[80px]">Active</th>
+          <thead className="bg-surface/60 border-b border-border">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary w-[200px]">Parameter</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">Description</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary w-[240px]">Value (editable)</th>
+              <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-text-secondary w-[80px]">Active</th>
               <th className="px-4 py-3 text-center font-semibold w-[50px]"></th>
             </tr>
           </thead>
@@ -59,8 +59,8 @@ export default function BusinessRulesTable({
             {rules.map((rule, idx) => (
               <tr
                 key={rule.id}
-                className={`border-b border-border-light transition-colors hover:bg-primary/3 ${
-                  idx % 2 === 0 ? "bg-white" : "bg-surface/50"
+                className={`border-b border-border-light transition-all duration-200 hover:bg-primary/5 ${
+                  idx % 2 === 0 ? "bg-white" : "bg-surface/30"
                 }`}
               >
                 <td className="px-4 py-2.5">

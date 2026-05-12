@@ -76,10 +76,10 @@ export default function ChatInterface({
               )}
             </div>
             <div
-              className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+              className={`max-w-[85%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed shadow-sm ${
                 msg.role === "bot"
-                  ? "bg-surface text-text-primary rounded-tl-md"
-                  : "bg-primary text-white rounded-tr-md"
+                  ? "bg-white border border-border shadow-subtle text-text-primary rounded-tl-sm"
+                  : "bg-gradient-to-br from-primary to-primary-light text-white shadow-md shadow-primary/20 rounded-tr-sm"
               }`}
             >
               {renderFormattedText(msg.content)}
@@ -122,9 +122,9 @@ export default function ChatInterface({
           <button
             type="submit"
             disabled={!input.trim()}
-            className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-white transition-all hover:bg-primary-dark disabled:opacity-30 disabled:cursor-not-allowed"
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-r from-primary to-primary-light text-white transition-all duration-200 hover:shadow-md hover:shadow-primary/20 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-none disabled:cursor-not-allowed"
           >
-            <Send className="h-4 w-4" />
+            <Send className="h-4 w-4 ml-0.5" />
           </button>
         </div>
       </form>
