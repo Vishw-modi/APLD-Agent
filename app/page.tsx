@@ -6,12 +6,13 @@ import { analysisTypes } from "@/data/analysisTypes";
 import { Dataset } from "@/types";
 import AnalysisCard from "@/components/AnalysisCard";
 import DatasetModal from "@/components/DatasetModal";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Loader2 } from "lucide-react";
 
 export default function LandingPage() {
   const router = useRouter();
   const [selectedAnalysis, setSelectedAnalysis] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const selectedAnalysisType = analysisTypes.find(
     (a) => a.id === selectedAnalysis
@@ -24,6 +25,7 @@ export default function LandingPage() {
 
   const handleDatasetSelect = (selectedDatasets: Dataset[]) => {
     setModalOpen(false);
+    setIsNavigating(true);
     const ids = selectedDatasets.map((d) => d.id).join(",");
     const names = selectedDatasets.map((d) => d.name).join(", ");
     router.push(
@@ -83,6 +85,28 @@ export default function LandingPage() {
         onSelect={handleDatasetSelect}
         onClose={() => setModalOpen(false)}
       />
+
+      {/* Navigation Loading Overlay */}
+      {isNavigating && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-md animate-fade-in">
+          <div className="flex flex-col items-center gap-4 bg-white p-8 rounded-3xl shadow-floating border border-border">
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
+              <div className="relative h-16 w-16 bg-gradient-to-tr from-primary to-primary-light rounded-2xl flex items-center justify-center shadow-elevated">
+                <Loader2 className="h-8 w-8 text-white animate-spin" />
+              </div>
+            </div>
+            <div className="text-center">
+              <h3 className="text-lg font-bold text-text-primary tracking-tight">
+                Initializing Workspace
+              </h3>
+              <p className="text-sm text-text-secondary mt-1">
+                Loading AI assistant and datasets...
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
