@@ -85,16 +85,26 @@ export default function BusinessRulesTable({
                     placeholder="Description"
                   />
                 </td>
-                <td className="px-4 py-2.5">
+                <td className="px-4 py-2.5 relative">
                   <input
                     type="text"
                     value={rule.value}
                     onChange={(e) =>
                       updateRule(rule.id, "value", e.target.value)
                     }
-                    className="w-full bg-white border border-border rounded-lg px-3 py-1.5 text-text-primary outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors"
+                    className={`w-full bg-white border rounded-lg px-3 py-1.5 text-text-primary outline-none transition-colors ${
+                      rule.enabled && rule.value.trim() === ""
+                        ? "border-red-400 bg-red-50 focus:border-red-500 focus:ring-1 focus:ring-red-200"
+                        : "border-border focus:border-primary focus:ring-1 focus:ring-primary/20"
+                    }`}
                     placeholder="Enter value"
                   />
+                  {rule.enabled && rule.value.trim() === "" && (
+                    <div className="absolute right-6 top-1/2 -translate-y-1/2 flex items-center gap-1 text-xs text-red-500 font-medium">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                      Required
+                    </div>
+                  )}
                 </td>
                 <td className="px-4 py-2.5 text-center">
                   <label className="relative inline-flex cursor-pointer">
@@ -153,15 +163,16 @@ export default function BusinessRulesTable({
       <div className="mt-5 flex flex-col sm:flex-row gap-3">
         <button
           onClick={onConfirm}
-          className="flex-1 rounded-xl bg-success py-3 px-6 text-sm font-semibold text-white transition-all hover:bg-success-light hover:shadow-md hover:shadow-success/20 active:scale-[0.98]"
+          disabled={rules.some((rule) => rule.enabled && rule.value.trim() === "")}
+          className="flex-1 rounded-xl bg-success py-3 px-6 text-sm font-semibold text-white transition-all hover:bg-success-light hover:shadow-md hover:shadow-success/20 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:active:scale-100"
         >
           Confirm Business Rules
         </button>
         <button
           onClick={onContinueChat}
-          className="flex-1 rounded-xl bg-primary py-3 px-6 text-sm font-semibold text-white transition-all hover:bg-primary-dark hover:shadow-md hover:shadow-primary/20 active:scale-[0.98]"
+          className="rounded-xl border border-border bg-white py-3 px-6 text-sm font-semibold text-primary transition-colors hover:bg-surface active:scale-[0.98]"
         >
-          Continue to Chat with Bot to Refine Business Rules
+          Refine with AI
         </button>
       </div>
     </div>

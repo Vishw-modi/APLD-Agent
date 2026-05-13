@@ -16,7 +16,7 @@ import PipelineProgress from "@/components/PipelineProgress";
 import ResultsDashboard from "@/components/ResultsDashboard";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import RefineChatModal from "@/components/RefineChatModal";
-import { ArrowLeft, MessageSquare } from "lucide-react";
+import { ArrowLeft, MessageSquare, Sparkles, CheckCircle } from "lucide-react";
 import Link from "next/link";
 
 /** Simulated bot responses for initial chat */
@@ -173,8 +173,8 @@ export default function AnalysisWorkspace({ params }: PageProps) {
       {/* Phase: Chat / Rules / Refine */}
       {(phase === "chat" || phase === "rules" || phase === "refine") && (
         <div className="grid gap-6 lg:grid-cols-5">
-          {/* Left Column: Chat (Phase 1) OR Initial Context + Chat (Phase 2+) */}
-          <div className={`flex flex-col gap-4 ${phase === "rules" || phase === "refine" ? "lg:col-span-2" : "lg:col-span-3 lg:col-start-2"}`}>
+          {/* Left Column: Chat (Phase 1 takes 3 cols, Phase 2+ takes 2 cols) */}
+          <div className={`flex flex-col gap-4 ${phase === "chat" ? "lg:col-span-3" : "lg:col-span-2"}`}>
             
             {/* Initial Context only visible during rules/refine phases */}
             {(phase === "rules" || phase === "refine") && (
@@ -182,7 +182,7 @@ export default function AnalysisWorkspace({ params }: PageProps) {
             )}
 
             <div
-              className={`rounded-xl border border-border bg-white shadow-sm overflow-hidden flex flex-col flex-1`}
+              className={`rounded-2xl border border-border bg-white shadow-sm overflow-hidden flex flex-col flex-1 transition-all duration-300`}
               style={{ height: phase === "chat" ? "600px" : "400px" }}
             >
               <div className="flex items-center gap-2 border-b border-border px-4 py-3 bg-surface/50">
@@ -204,44 +204,95 @@ export default function AnalysisWorkspace({ params }: PageProps) {
             </div>
           </div>
 
-          {/* Right Column: Business Rules (visible in rules & refine phases) */}
-          {(phase === "rules" || phase === "refine") && (
-            <div className="lg:col-span-3 space-y-4">
-              {/* User prompt display */}
-              {userPrompt && (
-                <div className="rounded-xl bg-accent/8 border border-accent/20 p-4 animate-slide-up">
-                  <p className="text-xs font-medium text-accent-dark mb-1">
-                    Your Analysis Request
-                  </p>
-                  <p className="text-sm text-text-primary">
-                    {userPrompt}
+          {/* Right Column: Setup Context (Phase 1) OR Business Rules (Phase 2+) */}
+          <div className={`${phase === "chat" ? "lg:col-span-2" : "lg:col-span-3"} space-y-4`}>
+            
+            {/* Context Sidebar during Chat Phase */}
+            {phase === "chat" && (
+              <div className="rounded-2xl border border-border bg-gradient-to-br from-white to-surface/30 shadow-subtle overflow-hidden animate-slide-up">
+                <div className="p-6">
+                  <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-accent" />
+                    Analysis Setup Guide
+                  </h3>
+                  
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-xs font-semibold text-text-secondary mb-2">SELECTED DATASETS</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {datasetName.split(",").map((name, i) => (
+                          <span key={i} className="inline-flex items-center rounded-lg bg-surface px-2.5 py-1 text-xs font-medium text-text-primary border border-border">
+                            {name.trim()}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-xs font-semibold text-text-secondary mb-2">SUGGESTED PROMPTS</h4>
+                      <div className="space-y-2">
+                        {[
+                          "Analyze line-of-therapy progression over 24 months",
+                          "Compare adherence rates across different demographics",
+                          "Identify key drivers for treatment switching"
+                        ].map((prompt, i) => (
+                          <button 
+                            key={i}
+                            onClick={() => setUserPrompt(prompt)}
+                            className="w-full text-left px-3 py-2 text-sm text-text-secondary bg-white hover:bg-primary/5 hover:text-primary hover:border-primary/30 border border-border rounded-xl transition-all"
+                          >
+                            "{prompt}"
+                          </button>
+                        ))}
+                      </div>
+                      <p className="text-xs text-text-muted mt-3">
+                        Click a prompt above to populate the chat, or type your own custom requirements.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Business Rules (visible in rules & refine phases) */}
+            {(phase === "rules" || phase === "refine") && (
+              <>
+                {/* User prompt display */}
+                {userPrompt && (
+                  <div className="rounded-xl bg-accent/8 border border-accent/20 p-4 animate-slide-up">
+                    <p className="text-xs font-medium text-accent-dark mb-1">
+                      Your Analysis Request
+                    </p>
+                    <p className="text-sm text-text-primary">
+                      {userPrompt}
+                    </p>
+                  </div>
+                )}
+
+                {/* Bot message about rules */}
+                <div className="rounded-xl bg-primary/5 border border-primary/15 p-4 animate-slide-up">
+                  <p className="text-sm text-text-secondary">
+                    <span className="font-semibold text-primary">
+                      AI Assistant:
+                    </span>{" "}
+                    Here are the initial business rules for your{" "}
+                    <span className="font-medium">{analysisName}</span>.
+                    Please review and confirm.
                   </p>
                 </div>
-              )}
 
-              {/* Bot message about rules */}
-              <div className="rounded-xl bg-primary/5 border border-primary/15 p-4 animate-slide-up">
-                <p className="text-sm text-text-secondary">
-                  <span className="font-semibold text-primary">
-                    AI Assistant:
-                  </span>{" "}
-                  Here are the initial business rules for your{" "}
-                  <span className="font-medium">{analysisName}</span>.
-                  Please review and confirm.
-                </p>
-              </div>
-
-              {/* Editable rules table */}
-              <BusinessRulesTable
-                rules={rules}
-                onRulesChange={setRules}
-                additionalInfo={additionalInfo}
-                onAdditionalInfoChange={setAdditionalInfo}
-                onConfirm={handleConfirmRules}
-                onContinueChat={handleContinueChat}
-              />
-            </div>
-          )}
+                {/* Editable rules table */}
+                <BusinessRulesTable
+                  rules={rules}
+                  onRulesChange={setRules}
+                  additionalInfo={additionalInfo}
+                  onAdditionalInfoChange={setAdditionalInfo}
+                  onConfirm={handleConfirmRules}
+                  onContinueChat={handleContinueChat}
+                />
+              </>
+            )}
+          </div>
         </div>
       )}
 

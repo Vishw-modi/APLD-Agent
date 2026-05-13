@@ -6,8 +6,8 @@ import {
   Bar,
   PieChart,
   Pie,
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -140,14 +140,28 @@ export default function ResultsDashboard({ result, analysisName }: Props) {
       </div>
 
       {/* Line Chart */}
+      {/* Area Chart */}
       <div className="rounded-2xl border border-border bg-white p-6 shadow-sm transition-shadow hover:shadow-subtle">
         <h3 className="text-sm font-semibold text-text-primary mb-4 flex items-center gap-2">
           <LineChartIcon className="h-4 w-4 text-primary" />
           {result.lineChartTitle}
         </h3>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={result.lineChartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+          <AreaChart
+            data={result.lineChartData}
+            margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+          >
+            <defs>
+              <linearGradient id="colorGroupA" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#0F6D8E" stopOpacity={0.3}/>
+                <stop offset="95%" stopColor="#0F6D8E" stopOpacity={0}/>
+              </linearGradient>
+              <linearGradient id="colorGroupB" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#E8913A" stopOpacity={0.3}/>
+                <stop offset="95%" stopColor="#E8913A" stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#EDF2F7" />
             <XAxis
               dataKey="name"
               tick={{ fontSize: 11, fill: "#4A5568" }}
@@ -160,33 +174,39 @@ export default function ResultsDashboard({ result, analysisName }: Props) {
             <Tooltip
               contentStyle={{
                 borderRadius: "12px",
-                border: "1px solid #E2E8F0",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
                 fontSize: "12px",
-                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+                backgroundColor: "rgba(255, 255, 255, 0.8)",
+                backdropFilter: "blur(8px)",
+                boxShadow: "0 10px 30px -10px rgba(15, 109, 142, 0.15)",
               }}
             />
             <Legend
               wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }}
             />
-            <Line
+            <Area
               type="monotone"
               dataKey="value"
               name="Group A"
               stroke="#0F6D8E"
               strokeWidth={3}
+              fillOpacity={1}
+              fill="url(#colorGroupA)"
               dot={{ r: 4, fill: "#0F6D8E" }}
               activeDot={{ r: 6, strokeWidth: 0 }}
             />
-            <Line
+            <Area
               type="monotone"
               dataKey="value2"
               name="Group B"
               stroke="#E8913A"
               strokeWidth={3}
+              fillOpacity={1}
+              fill="url(#colorGroupB)"
               dot={{ r: 4, fill: "#E8913A" }}
               activeDot={{ r: 6, strokeWidth: 0 }}
             />
-          </LineChart>
+          </AreaChart>
         </ResponsiveContainer>
       </div>
 
