@@ -33,7 +33,7 @@ export default function ChatInterface({
 }: Props) {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -42,6 +42,15 @@ export default function ChatInterface({
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
+
+  // Auto-resize textarea as content changes
+  useEffect(() => {
+    const el = inputRef.current;
+    if (el) {
+      el.style.height = 'auto';
+      el.style.height = `${Math.min(el.scrollHeight, 150)}px`;
+    }
+  }, [input]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,21 +117,27 @@ export default function ChatInterface({
       {/* Input area */}
       <form
         onSubmit={handleSubmit}
-        className="border-t border-border p-4"
+        className="border-t border-border p-4 shrink-0"
       >
-        <div className="flex items-center gap-2 rounded-xl bg-surface p-1.5">
-          <input
+        <div className="flex items-end gap-2 rounded-xl bg-surface p-1.5">
+          <textarea
             ref={inputRef}
-            type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmit(e);
+              }
+            }}
             placeholder={placeholder}
-            className="flex-1 bg-transparent px-3 py-2 text-sm text-text-primary placeholder:text-text-muted outline-none"
+            rows={1}
+            className="flex-1 bg-transparent px-3 py-2 text-sm text-text-primary placeholder:text-text-muted outline-none resize-none max-h-[150px] overflow-y-auto"
           />
           <button
             type="submit"
             disabled={!input.trim()}
-            className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-r from-primary to-primary-light text-white transition-all duration-200 hover:shadow-md hover:shadow-primary/20 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-none disabled:cursor-not-allowed"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-primary to-primary-light text-white transition-all duration-200 hover:shadow-md hover:shadow-primary/20 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-none disabled:cursor-not-allowed"
           >
             <Send className="h-4 w-4 ml-0.5" />
           </button>

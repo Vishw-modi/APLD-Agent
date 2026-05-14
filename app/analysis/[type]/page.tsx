@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useCallback, use } from "react";
+import { useState, useCallback, useRef, useEffect, use } from "react";
 import { useSearchParams } from "next/navigation";
 import { analysisTypes } from "@/data/analysisTypes";
-import { businessRulesByType } from "@/data/businessRules";
 import {
   dummyResultsByType,
   defaultDummyResult,
@@ -19,24 +18,7 @@ import RefineChatModal from "@/components/RefineChatModal";
 import { ArrowLeft, MessageSquare, Sparkles, CheckCircle } from "lucide-react";
 import Link from "next/link";
 
-/** Simulated bot responses for initial chat */
-function getBotGreeting(analysisName: string): string {
-  return `Hello! I'm your APLD Analysis Assistant. You've selected **${analysisName}**.\n\nPlease describe the analysis you'd like to perform. For example:\n• What therapeutic area or disease are you investigating?\n• Which treatment lines or patient segments are you interested in?\n• Any specific outcomes or metrics you want to measure?\n\nThe more detail you provide, the better I can configure your analysis.`;
-}
-
-function getBotRulesResponse(analysisName: string, userPrompt: string): string {
-  return `Great! Based on your request, I've prepared initial business rules for your ${analysisName}.\n\nI've pre-loaded parameters based on our general business standards and your analysis description. Please review the rules below:\n\n• You can **edit any value** directly in the table\n• **Toggle** rules on/off using the switch\n• **Add new rules** using the "Add Row" button\n• Use the **text area** below for complex rules\n\nOnce you're satisfied, click "Confirm Business Rules" to proceed, or chat with me further to refine them.`;
-}
-
-function getBotRefineResponse(): string {
-  const responses = [
-    "I see — that's a good refinement. I've noted your changes. Would you like to adjust any other parameters, or are you ready to confirm the business rules?",
-    "That makes sense. This additional context will help produce more accurate results. Any other modifications you'd like to make?",
-    "Understood. I'd also suggest considering adding a minimum follow-up period if you haven't already. Would you like me to explain why that might be helpful?",
-    "Good point. I've factored that into the analysis parameters. Feel free to edit the rules table directly or let me know if you need more suggestions.",
-  ];
-  return responses[Math.floor(Math.random() * responses.length)];
-}
+const API_BASE = "http://localhost:4000";
 
 interface PageProps {
   params: Promise<{ type: string }>;
@@ -50,29 +32,29 @@ export default function AnalysisWorkspace({ params }: PageProps) {
   const analysisType = analysisTypes.find((a) => a.id === type);
   const analysisName = analysisType?.name || "Analysis";
 
+  // Stable session ID — generated once per mount
+  const sessionIdRef = useRef<string>("");
+  if (!sessionIdRef.current) {
+    sessionIdRef.current = crypto.randomUUID();
+  }
+  const sessionId = sessionIdRef.current;
+
   // State machine
   const [phase, setPhase] = useState<AnalysisPhase>("chat");
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: "greeting",
-      role: "bot",
-      content: getBotGreeting(analysisName),
-      timestamp: new Date(),
-    },
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [userPrompt, setUserPrompt] = useState("");
 
   // Business rules
-  const [rules, setRules] = useState<BusinessRule[]>(
-    businessRulesByType[type] || businessRulesByType["switch-analysis"]!
-  );
+  const [rules, setRules] = useState<BusinessRule[]>([]);
   const [additionalInfo, setAdditionalInfo] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isRefineModalOpen, setIsRefineModalOpen] = useState(false);
 
   // Results
   const result = dummyResultsByType[type] || defaultDummyResult;
+
+  // ── Helpers ─────────────────────────────────────────────────────────────
 
   const addMessage = useCallback(
     (role: "user" | "bot", content: string) => {
@@ -89,28 +71,146 @@ export default function AnalysisWorkspace({ params }: PageProps) {
     []
   );
 
-  const simulateBotResponse = useCallback(
-    (response: string) => {
+  // ── AI Communication ───────────────────────────────────────────────────
+
+  /**
+   * Send a message to the backend /api/chat endpoint.
+   * If Gemini returns rules, they are set in state and the phase transitions to "rules".
+   */
+  const sendToChat = useCallback(
+    async (message: string) => {
       setIsTyping(true);
-      setTimeout(() => {
+      try {
+        const res = await fetch(`${API_BASE}/api/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionId,
+            message,
+            analysisType: type,
+            analysisName,
+            datasetName,
+          }),
+        });
+
+        if (!res.ok) {
+          throw new Error(`API error: ${res.status}`);
+        }
+
+        const data = await res.json();
+        addMessage("bot", data.reply);
+
+        if (data.rules && data.rules.length > 0) {
+          setRules(data.rules);
+          // Small delay so the user reads the bot message before rules appear
+          setTimeout(() => setPhase("rules"), 800);
+        }
+      } catch (err) {
+        console.error("Chat API error:", err);
+        addMessage(
+          "bot",
+          "I'm sorry, I encountered an error connecting to the AI service. Please check that the backend server is running on port 4000 and try again."
+        );
+      } finally {
         setIsTyping(false);
-        addMessage("bot", response);
-      }, 1500);
+      }
     },
-    [addMessage]
+    [sessionId, type, analysisName, datasetName, addMessage]
   );
+
+  /**
+   * Send a message to the backend /api/refine endpoint.
+   * If Gemini returns updated rules, they replace the current rules in state.
+   */
+  const sendToRefine = useCallback(
+    async (message: string) => {
+      setIsTyping(true);
+      try {
+        const res = await fetch(`${API_BASE}/api/refine`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionId,
+            message,
+            currentRules: rules,
+          }),
+        });
+
+        if (!res.ok) {
+          throw new Error(`API error: ${res.status}`);
+        }
+
+        const data = await res.json();
+        addMessage("bot", data.reply);
+
+        if (data.rules && data.rules.length > 0) {
+          setRules(data.rules);
+        }
+      } catch (err) {
+        console.error("Refine API error:", err);
+        addMessage(
+          "bot",
+          "I'm sorry, I encountered an error. Please try again."
+        );
+      } finally {
+        setIsTyping(false);
+      }
+    },
+    [sessionId, rules, addMessage]
+  );
+
+  // ── Initialization — fetch greeting from AI ────────────────────────────
+
+  const hasInitialized = useRef(false);
+  useEffect(() => {
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
+    // Send the __INIT__ message to get the AI greeting
+    (async () => {
+      setIsTyping(true);
+      try {
+        const res = await fetch(`${API_BASE}/api/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionId,
+            message: "__INIT__",
+            analysisType: type,
+            analysisName,
+            datasetName,
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          addMessage("bot", data.reply);
+        } else {
+          addMessage(
+            "bot",
+            `Hello! I'm your APLD Analysis Assistant. You've selected **${analysisName}**.\n\nPlease describe the analysis you'd like to perform. _(Note: The AI backend may not be running — please start it on port 4000.)_`
+          );
+        }
+      } catch {
+        addMessage(
+          "bot",
+          `Hello! I'm your APLD Analysis Assistant. You've selected **${analysisName}**.\n\nPlease describe the analysis you'd like to perform. _(Note: Could not connect to the AI backend. Make sure it's running on port 4000.)_`
+        );
+      } finally {
+        setIsTyping(false);
+      }
+    })();
+  }, [sessionId, type, analysisName, datasetName, addMessage]);
+
+  // ── Event Handlers ─────────────────────────────────────────────────────
 
   const handleChatSend = (content: string) => {
     addMessage("user", content);
 
     if (phase === "chat") {
       setUserPrompt(content);
-      simulateBotResponse(getBotRulesResponse(analysisName, content));
-      setTimeout(() => {
-        setPhase("rules");
-      }, 2500);
+      sendToChat(content);
     } else if (phase === "refine") {
-      simulateBotResponse(getBotRefineResponse());
+      sendToRefine(content);
     }
   };
 
@@ -139,9 +239,9 @@ export default function AnalysisWorkspace({ params }: PageProps) {
   }, []);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-6">
-      {/* Top bar */}
-      <div className="flex items-center gap-4 mb-6 animate-fade-in">
+    <div className="flex flex-col max-w-[1440px] mx-auto px-6 py-4" style={{ height: 'calc(100vh - 3.5rem)' }}>
+      {/* Top bar — fixed height */}
+      <div className="flex items-center gap-4 pb-4 shrink-0 animate-fade-in">
         <Link
           href="/"
           className="flex items-center gap-2 text-sm text-text-secondary hover:text-primary transition-colors"
@@ -160,36 +260,46 @@ export default function AnalysisWorkspace({ params }: PageProps) {
         </div>
       </div>
 
-      {/* Phase: Results */}
+      {/* Phase: Results — allow scrolling for results dashboard */}
       {phase === "results" && (
-        <ResultsDashboard result={result} analysisName={analysisName} />
+        <div className="flex-1 overflow-y-auto min-h-0">
+          <ResultsDashboard result={result} analysisName={analysisName} />
+        </div>
       )}
 
       {/* Phase: Running */}
       {phase === "running" && (
-        <PipelineProgress onComplete={handlePipelineComplete} />
+        <div className="flex-1 flex items-center justify-center min-h-0">
+          <PipelineProgress onComplete={handlePipelineComplete} />
+        </div>
       )}
 
-      {/* Phase: Chat / Rules / Refine */}
+      {/* Phase: Chat / Rules / Refine — fills remaining viewport */}
       {(phase === "chat" || phase === "rules" || phase === "refine") && (
-        <div className="grid gap-6 lg:grid-cols-5">
-          {/* Left Column: Chat (Phase 1 takes 3 cols, Phase 2+ takes 2 cols) */}
-          <div className={`flex flex-col gap-4 ${phase === "chat" ? "lg:col-span-3" : "lg:col-span-2"}`}>
+        <div className="flex-1 min-h-0 grid gap-6 lg:grid-cols-7">
+          {/* Left Column: Chat */}
+          <div className={`flex flex-col gap-4 min-h-0 ${phase === "chat" ? "lg:col-span-4" : "lg:col-span-3"}`}>
             
             {/* Initial Context only visible during rules/refine phases */}
             {(phase === "rules" || phase === "refine") && (
-              <BusinessRulesViewer />
+              <div className="shrink-0">
+                <BusinessRulesViewer />
+              </div>
             )}
 
             <div
-              className={`rounded-2xl border border-border bg-white shadow-sm overflow-hidden flex flex-col flex-1 transition-all duration-300`}
-              style={{ height: phase === "chat" ? "600px" : "400px" }}
+              className="rounded-2xl border border-border bg-white shadow-sm overflow-hidden flex flex-col flex-1 min-h-0 transition-all duration-300"
             >
-              <div className="flex items-center gap-2 border-b border-border px-4 py-3 bg-surface/50">
+              <div className="flex items-center gap-2 border-b border-border px-4 py-3 bg-surface/50 shrink-0">
                 <MessageSquare className="h-4 w-4 text-primary" />
                 <span className="text-sm font-medium text-text-primary">
                   Analysis Assistant
                 </span>
+                {isTyping && (
+                  <span className="ml-auto text-xs text-text-muted animate-pulse">
+                    AI is thinking...
+                  </span>
+                )}
               </div>
               <ChatInterface
                 messages={messages}
@@ -205,7 +315,7 @@ export default function AnalysisWorkspace({ params }: PageProps) {
           </div>
 
           {/* Right Column: Setup Context (Phase 1) OR Business Rules (Phase 2+) */}
-          <div className={`${phase === "chat" ? "lg:col-span-2" : "lg:col-span-3"} space-y-4`}>
+          <div className={`${phase === "chat" ? "lg:col-span-3" : "lg:col-span-4"} overflow-y-auto min-h-0 space-y-4`}>
             
             {/* Context Sidebar during Chat Phase */}
             {phase === "chat" && (
@@ -241,7 +351,7 @@ export default function AnalysisWorkspace({ params }: PageProps) {
                             onClick={() => setUserPrompt(prompt)}
                             className="w-full text-left px-3 py-2 text-sm text-text-secondary bg-white hover:bg-primary/5 hover:text-primary hover:border-primary/30 border border-border rounded-xl transition-all"
                           >
-                            "{prompt}"
+                            &quot;{prompt}&quot;
                           </button>
                         ))}
                       </div>
@@ -275,9 +385,9 @@ export default function AnalysisWorkspace({ params }: PageProps) {
                     <span className="font-semibold text-primary">
                       AI Assistant:
                     </span>{" "}
-                    Here are the initial business rules for your{" "}
+                    Here are the business rules generated for your{" "}
                     <span className="font-medium">{analysisName}</span>.
-                    Please review and confirm.
+                    Review and edit them below, then confirm to proceed.
                   </p>
                 </div>
 
