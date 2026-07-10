@@ -204,18 +204,7 @@ export default function MarketSizingParams({
         )}
       </div>
 
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-text-primary mb-2">
-          Additional Parameters or Context
-        </label>
-        <textarea
-          value={additionalInfo}
-          onChange={(e) => onAdditionalInfoChange(e.target.value)}
-          rows={2}
-          placeholder="Enter any custom constraints, data inclusions, or special instructions..."
-          className="w-full rounded-xl border border-border bg-white px-4 py-3 text-sm text-text-primary placeholder:text-text-muted outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all resize-none"
-        />
-      </div>
+
 
       <div className="mt-2 flex flex-col sm:flex-row gap-3">
         <button

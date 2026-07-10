@@ -11,7 +11,7 @@ import {
 import { ChatMessage, BusinessRule, AnalysisPhase } from "@/types";
 import ChatInterface from "@/components/ChatInterface";
 import BusinessRulesTable from "@/components/BusinessRulesTable";
-import BusinessRulesViewer from "@/components/BusinessRulesViewer";
+
 import PipelineProgress from "@/components/PipelineProgress";
 import ResultsDashboard from "@/components/ResultsDashboard";
 import ConfirmationModal from "@/components/ConfirmationModal";
@@ -300,10 +300,7 @@ export default function AnalysisWorkspace({ params }: PageProps) {
           {/* Left Column: Chat (Phase 1 takes 3 cols, Phase 2+ takes 2 cols) */}
           <div className={`flex flex-col gap-4 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] min-h-0 ${phase === "chat" ? "lg:col-span-3" : "lg:col-span-2"}`}>
             
-            {/* Initial Context only visible during rules/refine phases */}
-            {(phase === "rules" || phase === "refine") && (
-              <BusinessRulesViewer />
-            )}
+
 
             <div
               className={`rounded-2xl border border-border bg-white shadow-sm overflow-hidden flex flex-col flex-1 transition-all duration-300 min-h-0`}

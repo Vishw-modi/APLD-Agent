@@ -145,19 +145,7 @@ export default function BusinessRulesTable({
         </div>
       </div>
 
-      {/* Additional info text area */}
-      <div className="mt-4">
-        <label className="block text-sm font-medium text-text-primary mb-2">
-          Additional Business Rules or Context
-        </label>
-        <textarea
-          value={additionalInfo}
-          onChange={(e) => onAdditionalInfoChange(e.target.value)}
-          rows={3}
-          placeholder="Enter any complex business rules, additional context, or special instructions that would help the AI produce more accurate analysis..."
-          className="w-full rounded-xl border border-border bg-white px-4 py-3 text-sm text-text-primary placeholder:text-text-muted outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all resize-none"
-        />
-      </div>
+
 
       {/* Action Buttons */}
       <div className="mt-5 flex flex-col sm:flex-row gap-3">
