@@ -109,9 +109,119 @@ export default function AnalysisWorkspace({ params }: PageProps) {
       setTimeout(() => {
         setPhase("rules");
       }, 2500);
-    } else if (phase === "refine") {
-      simulateBotResponse(getBotRefineResponse());
+    } else if (phase === "refine" || phase === "rules") {
+      const textLower = content.toLowerCase();
+      if (textLower.includes("diagnosis code") && textLower.includes("l40.9")) {
+        setIsTyping(true);
+        setTimeout(() => {
+          setIsTyping(false);
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `msg-${Date.now()}-${Math.random()}`,
+              role: "bot",
+              content: "I can add the diagnosis code L40.9 (Psoriasis, unspecified) to your business rules. Do you want to proceed?",
+              timestamp: new Date(),
+              customAction: "add_diag_code",
+              actionPayload: {
+                description: "Diagnosis Code",
+                value: "L40.9"
+              }
+            },
+          ]);
+        }, 1500);
+      } else if (textLower.includes("hello") || textLower.includes("hi") || textLower === "hey") {
+        setIsTyping(true);
+        setTimeout(() => {
+          setIsTyping(false);
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `msg-${Date.now()}-${Math.random()}`,
+              role: "bot",
+              content: "Hello! How can I assist you further with this analysis?",
+              timestamp: new Date(),
+            },
+          ]);
+        }, 1000);
+      } else {
+        setIsTyping(true);
+        setTimeout(() => {
+          setIsTyping(false);
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `msg-${Date.now()}-${Math.random()}`,
+              role: "bot",
+              content: "I'm a prototype assistant. For this demo, I can only perform a limited set of actions. Please let me know if you need to add any specific diagnosis codes, or you can go ahead and confirm the rules.",
+              timestamp: new Date(),
+            },
+          ]);
+        }, 1500);
+      }
     }
+  };
+
+  const handleAcceptAction = (action: string, payload?: any) => {
+    if (action === "add_diag_code") {
+      setRules((prev) => {
+        const hasRule = prev.some((r) => r.parameter === "Diagnosis Code");
+        if (hasRule) return prev;
+        return [
+          ...prev,
+          {
+            id: `rule-${Date.now()}`,
+            parameter: "Diagnosis Code",
+            description: "Diagnosis code applied to define the cohort",
+            value: "L40.9",
+            enabled: true,
+          },
+        ];
+      });
+      setMessages((prev) => {
+        const cleaned = prev.map((m) =>
+          m.customAction === "add_diag_code" ? { ...m, customAction: undefined } : m
+        );
+        return [
+          ...cleaned,
+          {
+            id: `msg-${Date.now()}-user`,
+            role: "user",
+            content: "Add it.",
+            timestamp: new Date(),
+          },
+          {
+            id: `msg-${Date.now()}-bot`,
+            role: "bot",
+            content: "Done. I've added diagnosis code L40.9 to the business rules.",
+            timestamp: new Date(),
+          },
+        ];
+      });
+    }
+  };
+
+  const handleRejectAction = (action: string) => {
+    setMessages((prev) => {
+      const cleaned = prev.map((m) =>
+        m.customAction === action ? { ...m, customAction: undefined } : m
+      );
+      return [
+        ...cleaned,
+        {
+          id: `msg-${Date.now()}-user`,
+          role: "user",
+          content: "Reject.",
+          timestamp: new Date(),
+        },
+        {
+          id: `msg-${Date.now()}-bot`,
+          role: "bot",
+          content: "Understood. I will not add it.",
+          timestamp: new Date(),
+        },
+      ];
+    });
   };
 
   const handleConfirmRules = () => {
@@ -174,7 +284,7 @@ export default function AnalysisWorkspace({ params }: PageProps) {
       {(phase === "chat" || phase === "rules" || phase === "refine") && (
         <div className="grid gap-6 lg:grid-cols-5">
           {/* Left Column: Chat (Phase 1 takes 3 cols, Phase 2+ takes 2 cols) */}
-          <div className={`flex flex-col gap-4 ${phase === "chat" ? "lg:col-span-3" : "lg:col-span-2"}`}>
+          <div className={`flex flex-col gap-4 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] min-h-0 ${phase === "chat" ? "lg:col-span-3" : "lg:col-span-2"}`}>
             
             {/* Initial Context only visible during rules/refine phases */}
             {(phase === "rules" || phase === "refine") && (
@@ -182,7 +292,7 @@ export default function AnalysisWorkspace({ params }: PageProps) {
             )}
 
             <div
-              className={`rounded-2xl border border-border bg-white shadow-sm overflow-hidden flex flex-col flex-1 transition-all duration-300`}
+              className={`rounded-2xl border border-border bg-white shadow-sm overflow-hidden flex flex-col flex-1 transition-all duration-300 min-h-0`}
               style={{ height: phase === "chat" ? "600px" : "400px" }}
             >
               <div className="flex items-center gap-2 border-b border-border px-4 py-3 bg-surface/50">
@@ -200,6 +310,8 @@ export default function AnalysisWorkspace({ params }: PageProps) {
                     : "Ask questions or provide additional context..."
                 }
                 isTyping={isTyping}
+                onAcceptAction={handleAcceptAction}
+                onRejectAction={handleRejectAction}
               />
             </div>
           </div>
@@ -304,6 +416,8 @@ export default function AnalysisWorkspace({ params }: PageProps) {
         onSendMessage={handleChatSend}
         isTyping={isTyping}
         onConfirm={handleConfirmRules}
+        onAcceptAction={handleAcceptAction}
+        onRejectAction={handleRejectAction}
       />
 
       {/* Confirmation Modal */}

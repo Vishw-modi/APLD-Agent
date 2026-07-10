@@ -11,6 +11,8 @@ interface Props {
   onSendMessage: (content: string) => void;
   isTyping: boolean;
   onConfirm: () => void;
+  onAcceptAction?: (action: string, payload?: any) => void;
+  onRejectAction?: (action: string, payload?: any) => void;
 }
 
 export default function RefineChatModal({
@@ -20,6 +22,8 @@ export default function RefineChatModal({
   onSendMessage,
   isTyping,
   onConfirm,
+  onAcceptAction,
+  onRejectAction,
 }: Props) {
   if (!isOpen) return null;
 
@@ -57,12 +61,14 @@ export default function RefineChatModal({
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1 overflow-hidden bg-surface/30">
+        <div className="flex-1 overflow-hidden bg-surface/30 flex flex-col min-h-0">
           <ChatInterface
             messages={messages}
             onSendMessage={onSendMessage}
             placeholder="Ask questions or tell the bot what rules to change..."
             isTyping={isTyping}
+            onAcceptAction={onAcceptAction}
+            onRejectAction={onRejectAction}
           />
         </div>
 

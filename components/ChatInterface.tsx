@@ -9,6 +9,8 @@ interface Props {
   onSendMessage: (content: string) => void;
   placeholder?: string;
   isTyping?: boolean;
+  onAcceptAction?: (action: string, payload?: any) => void;
+  onRejectAction?: (action: string, payload?: any) => void;
 }
 
 const renderFormattedText = (text: string) => {
@@ -30,6 +32,8 @@ export default function ChatInterface({
   onSendMessage,
   placeholder = "Type your message...",
   isTyping = false,
+  onAcceptAction,
+  onRejectAction,
 }: Props) {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -52,9 +56,9 @@ export default function ChatInterface({
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col flex-1 h-full w-full min-h-0 overflow-hidden">
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -83,6 +87,30 @@ export default function ChatInterface({
               }`}
             >
               {renderFormattedText(msg.content)}
+              {msg.customAction && (
+                <div className="mt-4 flex flex-col gap-2 rounded-xl bg-surface/50 p-3 border border-border/50">
+                  <div className="text-sm font-medium text-text-primary">
+                    {msg.actionPayload?.description || "Parameter Update"}
+                  </div>
+                  <div className="text-xs text-text-secondary mb-1">
+                    Value: <span className="font-semibold text-text-primary">{msg.actionPayload?.value || ""}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => onAcceptAction?.(msg.customAction!, msg.actionPayload)}
+                      className="flex-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-primary-light"
+                    >
+                      Add
+                    </button>
+                    <button
+                      onClick={() => onRejectAction?.(msg.customAction!, msg.actionPayload)}
+                      className="flex-1 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:bg-surface"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ))}
@@ -108,7 +136,7 @@ export default function ChatInterface({
       {/* Input area */}
       <form
         onSubmit={handleSubmit}
-        className="border-t border-border p-4"
+        className="border-t border-border p-4 shrink-0"
       >
         <div className="flex items-center gap-2 rounded-xl bg-surface p-1.5">
           <input

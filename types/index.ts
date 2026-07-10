@@ -26,6 +26,8 @@ export interface ChatMessage {
   role: "user" | "bot";
   content: string;
   timestamp: Date;
+  customAction?: string;
+  actionPayload?: any;
 }
 
 export interface ChartDataPoint {
