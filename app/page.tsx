@@ -20,7 +20,12 @@ export default function LandingPage() {
 
   const handleCardClick = (id: string) => {
     setSelectedAnalysis(id);
-    setModalOpen(true);
+    if (id === "market-sizing") {
+      setIsNavigating(true);
+      router.push(`/analysis/${id}?dataset=none&datasetName=None`);
+    } else {
+      setModalOpen(true);
+    }
   };
 
   const handleDatasetSelect = (selectedDatasets: Dataset[]) => {

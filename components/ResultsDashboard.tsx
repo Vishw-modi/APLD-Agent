@@ -1,6 +1,9 @@
 "use client";
 
-import { AnalysisResult } from "@/types";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { AnalysisResult, Dataset } from "@/types";
+import DatasetModal from "@/components/DatasetModal";
 import {
   BarChart,
   Bar,
@@ -41,6 +44,18 @@ interface Props {
 }
 
 export default function ResultsDashboard({ result, analysisName, datasetName, analysisTypeSlug }: Props) {
+  const router = useRouter();
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const handleDatasetSelect = (selectedDatasets: Dataset[]) => {
+    setModalOpen(false);
+    const ids = selectedDatasets.map((d) => d.id).join(",");
+    const names = selectedDatasets.map((d) => d.name).join(", ");
+    router.push(
+      `/analysis/patient-cohort?dataset=${ids}&datasetName=${encodeURIComponent(names)}`
+    );
+  };
+
   const isMarketSizing = analysisTypeSlug === "market-sizing";
   const isCohort = analysisTypeSlug === "patient-cohort" || analysisTypeSlug === "cohort-builder";
 
@@ -474,15 +489,22 @@ export default function ResultsDashboard({ result, analysisName, datasetName, an
       {/* Custom Navigation */}
       {isMarketSizing && (
         <div className="mt-8 border-t border-border pt-8 flex justify-end">
-          <Link
-            href={`/analysis/patient-cohort?datasetName=${encodeURIComponent(datasetName)}`}
+          <button
+            onClick={() => setModalOpen(true)}
             className="flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-medium text-white transition-all hover:bg-primary-dark"
           >
             Next: Patient Cohort Analysis
             <ArrowRight className="h-4 w-4" />
-          </Link>
+          </button>
         </div>
       )}
+
+      <DatasetModal
+        isOpen={modalOpen}
+        analysisName="Patient Cohort"
+        onSelect={handleDatasetSelect}
+        onClose={() => setModalOpen(false)}
+      />
 
       {isCohort && (
         <div className="mt-8 border-t border-border pt-8">

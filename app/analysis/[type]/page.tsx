@@ -351,27 +351,7 @@ export default function AnalysisWorkspace({ params }: PageProps) {
                       </div>
                     </div>
 
-                    <div>
-                      <h4 className="text-xs font-semibold text-text-secondary mb-2">SUGGESTED PROMPTS</h4>
-                      <div className="space-y-2">
-                        {[
-                          "Analyze line-of-therapy progression over 24 months",
-                          "Compare adherence rates across different demographics",
-                          "Identify key drivers for treatment switching"
-                        ].map((prompt, i) => (
-                          <button 
-                            key={i}
-                            onClick={() => setUserPrompt(prompt)}
-                            className="w-full text-left px-3 py-2 text-sm text-text-secondary bg-white hover:bg-primary/5 hover:text-primary hover:border-primary/30 border border-border rounded-xl transition-all"
-                          >
-                            "{prompt}"
-                          </button>
-                        ))}
-                      </div>
-                      <p className="text-xs text-text-muted mt-3">
-                        Click a prompt above to populate the chat, or type your own custom requirements.
-                      </p>
-                    </div>
+
                   </div>
                 </div>
               </div>
