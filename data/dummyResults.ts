@@ -66,6 +66,24 @@ export const dummyResultsByType: Record<string, AnalysisResult> = {
     ],
     tableTitle: "Detailed Switch Pathway Analysis",
     downloadLink: "#download-switch-analysis-results",
+    sankeyChartData: {
+      nodes: [
+        { name: "TNF-α" },
+        { name: "IL-17i" },
+        { name: "IL-23i" },
+        { name: "JAKi" },
+        { name: "Other" }
+      ],
+      links: [
+        { source: 0, target: 1, value: 4200 },
+        { source: 0, target: 2, value: 3100 },
+        { source: 1, target: 2, value: 2800 },
+        { source: 1, target: 3, value: 1900 },
+        { source: 2, target: 3, value: 1200 },
+        { source: 0, target: 4, value: 1000 },
+        { source: 2, target: 4, value: 1100 }
+      ]
+    },
     generatedTables: [
       {
         name: "Final Analysis Dataset",
@@ -145,6 +163,44 @@ export const dummyResultsByType: Record<string, AnalysisResult> = {
         link: "#download-icd10-frequencies",
       },
     ],
+  },
+
+  "patient-cohort": {
+    summary:
+      "Patient cohort generation complete. Starting with 8.2M diagnosed patients, the final eligible cohort comprises 24,350 patients who met all inclusion and exclusion criteria, including continuous enrollment and specific treatment requirements.",
+    insights: [
+      "Initial pool: 8.2M patients",
+      "After applying 12-month continuous enrollment: 1.4M patients",
+      "After requiring IL-17 or IL-23 treatment: 312K patients",
+      "Final cohort after applying all specific exclusion criteria: 24,350 patients",
+    ],
+    barChartData: [],
+    barChartTitle: "",
+    pieChartData: [],
+    pieChartTitle: "",
+    lineChartData: [],
+    lineChartTitle: "",
+    funnelChartData: [
+      { name: "Diagnosed PsO", value: 8200000, fill: COLORS.slate2 },
+      { name: "12mo Continuous Enrollment", value: 1400000, fill: COLORS.teal1 },
+      { name: "Biologic Treated", value: 1200000, fill: COLORS.teal2 },
+      { name: "Specific Drug Class (IL-17/23)", value: 312000, fill: COLORS.teal3 },
+      { name: "Final Cohort (Excl. criteria)", value: 24350, fill: COLORS.amber1 }
+    ],
+    tableColumns: [
+      { key: "step", label: "Attrition Step" },
+      { key: "remaining", label: "Patients Remaining" },
+      { key: "dropped", label: "Patients Dropped" },
+    ],
+    tableRows: [
+      { step: "Diagnosed PsO", remaining: "8,200,000", dropped: "—" },
+      { step: "12mo Continuous Enrollment", remaining: "1,400,000", dropped: "6,800,000" },
+      { step: "Biologic Treated", remaining: "1,200,000", dropped: "200,000" },
+      { step: "Specific Drug Class", remaining: "312,000", dropped: "888,000" },
+      { step: "Final Cohort", remaining: "24,350", dropped: "287,650" },
+    ],
+    tableTitle: "Cohort Attrition Summary",
+    downloadLink: "#download-cohort-results"
   },
 };
 

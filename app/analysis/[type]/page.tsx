@@ -48,7 +48,7 @@ export default function AnalysisWorkspace({ params }: PageProps) {
   const datasetName = searchParams.get("datasetName") || "Unknown Dataset";
 
   const analysisType = analysisTypes.find((a) => a.id === type);
-  const analysisName = analysisType?.name || "Analysis";
+  const analysisName = analysisType?.name || (type === "patient-cohort" ? "Patient Cohort Analysis" : "Analysis");
 
   // State machine
   const [phase, setPhase] = useState<AnalysisPhase>("chat");
@@ -272,7 +272,12 @@ export default function AnalysisWorkspace({ params }: PageProps) {
 
       {/* Phase: Results */}
       {phase === "results" && (
-        <ResultsDashboard result={result} analysisName={analysisName} />
+        <ResultsDashboard
+          result={result}
+          analysisName={analysisName}
+          datasetName={datasetName}
+          analysisTypeSlug={type}
+        />
       )}
 
       {/* Phase: Running */}

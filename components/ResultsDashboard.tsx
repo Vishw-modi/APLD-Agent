@@ -15,6 +15,10 @@ import {
   Legend,
   Cell,
   ResponsiveContainer,
+  FunnelChart,
+  Funnel,
+  LabelList,
+  Sankey,
 } from "recharts";
 import {
   TrendingUp,
@@ -24,14 +28,21 @@ import {
   PieChartIcon,
   LineChartIcon,
   FileText,
+  ArrowRight,
 } from "lucide-react";
+import Link from "next/link";
 
 interface Props {
   result: AnalysisResult;
   analysisName: string;
+  datasetName: string;
+  analysisTypeSlug: string;
 }
 
-export default function ResultsDashboard({ result, analysisName }: Props) {
+export default function ResultsDashboard({ result, analysisName, datasetName, analysisTypeSlug }: Props) {
+  const isMarketSizing = analysisTypeSlug === "market-sizing";
+  const isCohort = analysisTypeSlug === "patient-cohort" || analysisTypeSlug === "cohort-builder";
+
   return (
     <div className="space-y-6 animate-slide-up">
       {/* Header */}
@@ -47,30 +58,86 @@ export default function ResultsDashboard({ result, analysisName }: Props) {
         </div>
       </div>
 
-      {/* Key Insights */}
-      <div className="rounded-2xl border border-border bg-white p-6 shadow-sm transition-shadow hover:shadow-subtle">
-        <h3 className="text-sm font-semibold text-text-primary mb-4 flex items-center gap-2">
-          <TrendingUp className="h-4 w-4 text-primary" />
-          Key Insights
-        </h3>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {result.insights.map((insight, idx) => (
-            <div
-              key={idx}
-              className="flex items-start gap-3 rounded-xl bg-surface/50 p-4 transition-colors hover:bg-surface"
-            >
-              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                {idx + 1}
-              </span>
-              <p className="text-sm leading-relaxed text-text-secondary">{insight}</p>
-            </div>
-          ))}
+      {/* Key Insights - Hidden for Market Sizing */}
+      {!isMarketSizing && (
+        <div className="rounded-2xl border border-border bg-white p-6 shadow-sm transition-shadow hover:shadow-subtle">
+          <h3 className="text-sm font-semibold text-text-primary mb-4 flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-primary" />
+            Key Insights
+          </h3>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {result.insights.map((insight, idx) => (
+              <div
+                key={idx}
+                className="flex items-start gap-3 rounded-xl bg-surface/50 p-4 transition-colors hover:bg-surface"
+              >
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                  {idx + 1}
+                </span>
+                <p className="text-sm leading-relaxed text-text-secondary">{insight}</p>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Charts Grid */}
       <div className="grid gap-6 lg:grid-cols-2">
+        {result.funnelChartData && (
+          <div className="lg:col-span-2 rounded-2xl border border-border bg-white p-6 shadow-sm transition-shadow hover:shadow-subtle">
+            <h3 className="text-sm font-semibold text-text-primary mb-4 flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 text-primary" />
+              Patient Cohort Attrition Funnel
+            </h3>
+            <ResponsiveContainer width="100%" height={350}>
+              <FunnelChart>
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: "8px",
+                    border: "1px solid #E2E8F0",
+                    fontSize: "12px",
+                  }}
+                />
+                <Funnel
+                  dataKey="value"
+                  data={result.funnelChartData}
+                  isAnimationActive
+                >
+                  <LabelList position="right" fill="#4A5568" stroke="none" dataKey="name" fontSize={12} />
+                </Funnel>
+              </FunnelChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+
+        {result.sankeyChartData && (
+          <div className="lg:col-span-2 rounded-2xl border border-border bg-white p-6 shadow-sm transition-shadow hover:shadow-subtle">
+            <h3 className="text-sm font-semibold text-text-primary mb-4 flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 text-primary" />
+              Drug Switch Pathways
+            </h3>
+            <ResponsiveContainer width="100%" height={400}>
+              <Sankey
+                data={result.sankeyChartData}
+                nodePadding={50}
+                margin={{ top: 20, right: 100, bottom: 20, left: 20 }}
+                link={{ stroke: '#0F6D8E', strokeOpacity: 0.3 }}
+                node={{ fill: '#E8913A', stroke: '#E8913A', strokeWidth: 2 }}
+              >
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: "8px",
+                    border: "1px solid #E2E8F0",
+                    fontSize: "12px",
+                  }}
+                />
+              </Sankey>
+            </ResponsiveContainer>
+          </div>
+        )}
+
         {/* Bar Chart */}
+        {!isMarketSizing && result.barChartData && result.barChartData.length > 0 && (
         <div className="rounded-2xl border border-border bg-white p-6 shadow-sm transition-shadow hover:shadow-subtle">
           <h3 className="text-sm font-semibold text-text-primary mb-4 flex items-center gap-2">
             <BarChart3 className="h-4 w-4 text-primary" />
@@ -103,8 +170,10 @@ export default function ResultsDashboard({ result, analysisName }: Props) {
             </BarChart>
           </ResponsiveContainer>
         </div>
+        )}
 
         {/* Pie Chart */}
+        {!isMarketSizing && result.pieChartData && result.pieChartData.length > 0 && (
         <div className="rounded-2xl border border-border bg-white p-6 shadow-sm transition-shadow hover:shadow-subtle">
           <h3 className="text-sm font-semibold text-text-primary mb-4 flex items-center gap-2">
             <PieChartIcon className="h-4 w-4 text-primary" />
@@ -137,10 +206,11 @@ export default function ResultsDashboard({ result, analysisName }: Props) {
             </PieChart>
           </ResponsiveContainer>
         </div>
+        )}
       </div>
 
-      {/* Line Chart */}
       {/* Area Chart */}
+      {!isMarketSizing && result.lineChartData && result.lineChartData.length > 0 && (
       <div className="rounded-2xl border border-border bg-white p-6 shadow-sm transition-shadow hover:shadow-subtle">
         <h3 className="text-sm font-semibold text-text-primary mb-4 flex items-center gap-2">
           <LineChartIcon className="h-4 w-4 text-primary" />
@@ -209,6 +279,7 @@ export default function ResultsDashboard({ result, analysisName }: Props) {
           </AreaChart>
         </ResponsiveContainer>
       </div>
+      )}
 
       {/* Data Table */}
       <div className="rounded-2xl border border-border bg-white shadow-sm overflow-hidden transition-shadow hover:shadow-subtle">
@@ -295,6 +366,55 @@ export default function ResultsDashboard({ result, analysisName }: Props) {
           Download Full Analysis Report
         </a>
       </div>
+
+      {/* Custom Navigation */}
+      {isMarketSizing && (
+        <div className="mt-8 border-t border-border pt-8 flex justify-end">
+          <Link
+            href={`/analysis/patient-cohort?datasetName=${encodeURIComponent(datasetName)}`}
+            className="flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-medium text-white transition-all hover:bg-primary-dark"
+          >
+            Next: Patient Cohort Analysis
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      )}
+
+      {isCohort && (
+        <div className="mt-8 border-t border-border pt-8">
+          <h3 className="text-lg font-bold text-text-primary mb-4">Run specific metrics for this cohort:</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <Link
+              href={`/analysis/switch-analysis?datasetName=${encodeURIComponent(datasetName)}`}
+              className="flex items-center justify-between gap-2 rounded-xl border border-border bg-white p-4 transition-all hover:border-primary hover:shadow-sm"
+            >
+              <span className="font-medium text-text-primary">Switch Analysis</span>
+              <ArrowRight className="h-4 w-4 text-text-muted" />
+            </Link>
+            <Link
+              href={`/analysis/lot?datasetName=${encodeURIComponent(datasetName)}`}
+              className="flex items-center justify-between gap-2 rounded-xl border border-border bg-white p-4 transition-all hover:border-primary hover:shadow-sm"
+            >
+              <span className="font-medium text-text-primary">Line of Therapy</span>
+              <ArrowRight className="h-4 w-4 text-text-muted" />
+            </Link>
+            <Link
+              href={`/analysis/persistence?datasetName=${encodeURIComponent(datasetName)}`}
+              className="flex items-center justify-between gap-2 rounded-xl border border-border bg-white p-4 transition-all hover:border-primary hover:shadow-sm"
+            >
+              <span className="font-medium text-text-primary">Persistence</span>
+              <ArrowRight className="h-4 w-4 text-text-muted" />
+            </Link>
+            <Link
+              href={`/analysis/adherence?datasetName=${encodeURIComponent(datasetName)}`}
+              className="flex items-center justify-between gap-2 rounded-xl border border-border bg-white p-4 transition-all hover:border-primary hover:shadow-sm"
+            >
+              <span className="font-medium text-text-primary">Adherence</span>
+              <ArrowRight className="h-4 w-4 text-text-muted" />
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

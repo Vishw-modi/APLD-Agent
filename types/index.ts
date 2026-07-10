@@ -37,6 +37,21 @@ export interface ChartDataPoint {
   fill?: string;
 }
 
+export interface SankeyNode {
+  name: string;
+}
+
+export interface SankeyLink {
+  source: number;
+  target: number;
+  value: number;
+}
+
+export interface SankeyData {
+  nodes: SankeyNode[];
+  links: SankeyLink[];
+}
+
 export interface TableColumn {
   key: string;
   label: string;
@@ -66,6 +81,8 @@ export interface AnalysisResult {
   lineChartTitle: string;
   tableTitle: string;
   generatedTables?: GeneratedTable[];
+  funnelChartData?: ChartDataPoint[];
+  sankeyChartData?: SankeyData;
 }
 
 export type AnalysisPhase =
