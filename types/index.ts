@@ -34,6 +34,7 @@ export interface ChartDataPoint {
   name: string;
   value: number;
   value2?: number;
+  realValue?: number;
   fill?: string;
 }
 
