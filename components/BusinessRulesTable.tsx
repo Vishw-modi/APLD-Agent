@@ -156,12 +156,7 @@ export default function BusinessRulesTable({
         >
           Confirm Business Rules
         </button>
-        <button
-          onClick={onContinueChat}
-          className="rounded-xl border border-border bg-white py-3 px-6 text-sm font-semibold text-primary transition-colors hover:bg-surface active:scale-[0.98]"
-        >
-          Refine with AI
-        </button>
+
       </div>
     </div>
   );
