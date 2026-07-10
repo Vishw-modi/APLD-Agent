@@ -36,6 +36,8 @@ export interface ChartDataPoint {
   value2?: number;
   realValue?: number;
   fill?: string;
+  stroke?: string;
+  strokeWidth?: number;
 }
 
 export interface SankeyNode {
