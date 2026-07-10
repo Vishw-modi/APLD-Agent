@@ -82,48 +82,7 @@ export default function MarketSizingParams({
             </select>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">
-              Projection Horizon
-            </label>
-            <select 
-              value={projHorizon}
-              onChange={(e) => setProjHorizon(e.target.value)}
-              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text-primary outline-none focus:border-primary focus:ring-1 focus:ring-primary/20">
-              <option>5 Years (2025-2030)</option>
-              <option>10 Years (2025-2035)</option>
-              <option>1 Year (Current)</option>
-            </select>
-          </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">
-              Data Sources
-            </label>
-            <div className="flex flex-col gap-2">
-              {[
-                "Linked Claims Data",
-                "Electronic Health Records (EHR)",
-                "Patient Surveys",
-              ].map((source) => (
-                <label key={source} className="flex items-center gap-2 text-sm text-text-primary cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={dataSources.includes(source)}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setDataSources([...dataSources, source]);
-                      } else {
-                        setDataSources(dataSources.filter((s) => s !== source));
-                      }
-                    }}
-                    className="rounded border-border text-primary focus:ring-primary h-4 w-4"
-                  />
-                  {source}
-                </label>
-              ))}
-            </div>
-          </div>
 
           <div>
             <label className="block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">
