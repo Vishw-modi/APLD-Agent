@@ -13,7 +13,7 @@ export default function Header() {
               src="/Tredence_KMK_Logo-removebg-preview.png"
               alt="Tredence KMK Logo"
               fill
-              className="object-contain object-left"
+              className="object-contain object-left scale-[1.35] origin-left"
               priority
             />
           </div>

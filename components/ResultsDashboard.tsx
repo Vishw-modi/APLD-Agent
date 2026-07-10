@@ -120,9 +120,29 @@ export default function ResultsDashboard({ result, analysisName, datasetName, an
               <Sankey
                 data={result.sankeyChartData}
                 nodePadding={50}
-                margin={{ top: 20, right: 100, bottom: 20, left: 20 }}
+                margin={{ top: 20, right: 150, bottom: 20, left: 150 }}
                 link={{ stroke: '#0F6D8E', strokeOpacity: 0.3 }}
-                node={{ fill: '#E8913A', stroke: '#E8913A', strokeWidth: 2 }}
+                node={(props: any) => {
+                  const { x, y, width, height, index, payload } = props;
+                  // If x is large, it's on the right side. If x is small, it's on the left.
+                  const isRight = x > 200;
+                  return (
+                    <g>
+                      <rect x={x} y={y} width={width} height={height} fill="#E8913A" />
+                      <text
+                        x={isRight ? x + width + 8 : x - 8}
+                        y={y + height / 2}
+                        dy="0.35em"
+                        textAnchor={isRight ? 'start' : 'end'}
+                        fill="#4A5568"
+                        fontSize={12}
+                        fontWeight={500}
+                      >
+                        {payload.name}
+                      </text>
+                    </g>
+                  );
+                }}
               >
                 <Tooltip
                   contentStyle={{

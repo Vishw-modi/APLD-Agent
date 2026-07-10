@@ -68,20 +68,34 @@ export const dummyResultsByType: Record<string, AnalysisResult> = {
     downloadLink: "#download-switch-analysis-results",
     sankeyChartData: {
       nodes: [
-        { name: "TNF-α" },
-        { name: "IL-17i" },
-        { name: "IL-23i" },
-        { name: "JAKi" },
-        { name: "Other" }
+        { name: "STALIXIMA" }, // 0
+        { name: "DERMIZENITH AUTOINJECTOR" }, // 1
+        { name: "INFLIXIMAB" }, // 2
+        { name: "LYNTIX" }, // 3
+        { name: "DERMIZENITH SYRINGE (2 PACK)" }, // 4
+        { name: "DERMIGENT PEN" }, // 5
+        { name: "PSORIAIFEN(CF)" }, // 6
+        { name: "PSORIFIXA" }, // 7
+        { name: "PSORIAIFEN" }, // 8
+        { name: "XERODERMIX" } // 9
       ],
       links: [
-        { source: 0, target: 1, value: 4200 },
-        { source: 0, target: 2, value: 3100 },
-        { source: 1, target: 2, value: 2800 },
-        { source: 1, target: 3, value: 1900 },
-        { source: 2, target: 3, value: 1200 },
-        { source: 0, target: 4, value: 1000 },
-        { source: 2, target: 4, value: 1100 }
+        { source: 0, target: 4, value: 4200 },
+        { source: 0, target: 5, value: 3100 },
+        { source: 0, target: 6, value: 1500 },
+        { source: 0, target: 8, value: 800 },
+        
+        { source: 1, target: 4, value: 2800 },
+        { source: 1, target: 7, value: 1900 },
+        { source: 1, target: 9, value: 1200 },
+        
+        { source: 2, target: 5, value: 2100 },
+        { source: 2, target: 8, value: 1600 },
+        { source: 2, target: 9, value: 900 },
+        
+        { source: 3, target: 4, value: 1000 },
+        { source: 3, target: 6, value: 1100 },
+        { source: 3, target: 7, value: 800 }
       ]
     },
     generatedTables: [
