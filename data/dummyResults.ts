@@ -195,11 +195,11 @@ export const dummyResultsByType: Record<string, AnalysisResult> = {
     lineChartData: [],
     lineChartTitle: "",
     funnelChartData: [
-      { name: "Diagnosed PsO", value: 8200000, fill: COLORS.slate2 },
-      { name: "12mo Continuous Enrollment", value: 1400000, fill: COLORS.teal1 },
-      { name: "Biologic Treated", value: 1200000, fill: COLORS.teal2 },
-      { name: "Specific Drug Class (IL-17/23)", value: 312000, fill: COLORS.teal3 },
-      { name: "Final Cohort (Excl. criteria)", value: 24350, fill: COLORS.amber1 }
+      { name: "Diagnosed PsO", value: 5, realValue: 8200000, fill: "#004B87" },
+      { name: "12mo Continuous Enrollment", value: 4, realValue: 1400000, fill: "#1E73E8" },
+      { name: "Biologic Treated", value: 3, realValue: 1200000, fill: "#749EEA" },
+      { name: "Specific Drug Class", value: 2, realValue: 312000, fill: "#60A5FA" },
+      { name: "Final Cohort", value: 1, realValue: 24350, fill: "#2563EB", stroke: "#22C55E", strokeWidth: 4 }
     ],
     tableColumns: [
       { key: "step", label: "Attrition Step" },

@@ -16,6 +16,7 @@ import PipelineProgress from "@/components/PipelineProgress";
 import ResultsDashboard from "@/components/ResultsDashboard";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import RefineChatModal from "@/components/RefineChatModal";
+import MarketSizingParams from "@/components/MarketSizingParams";
 import { ArrowLeft, MessageSquare, Sparkles, CheckCircle } from "lucide-react";
 import Link from "next/link";
 
@@ -65,11 +66,17 @@ export default function AnalysisWorkspace({ params }: PageProps) {
 
   // Business rules
   const [rules, setRules] = useState<BusinessRule[]>(
-    businessRulesByType[type] || businessRulesByType["switch-analysis"]!
+    type === "market-sizing" ? [] : (businessRulesByType[type] || businessRulesByType["switch-analysis"]!)
   );
   const [additionalInfo, setAdditionalInfo] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isRefineModalOpen, setIsRefineModalOpen] = useState(false);
+
+  // Market Sizing specific state
+  const [geoScope, setGeoScope] = useState("United States (US)");
+  const [projHorizon, setProjHorizon] = useState("5 Years (2025-2030)");
+  const [dataSources, setDataSources] = useState(["Linked Claims Data", "Electronic Health Records (EHR)"]);
+  const [prevBase, setPrevBase] = useState("Adult Population (18+)");
 
   // Results
   const result = dummyResultsByType[type] || defaultDummyResult;
@@ -111,7 +118,9 @@ export default function AnalysisWorkspace({ params }: PageProps) {
       }, 2500);
     } else if (phase === "refine" || phase === "rules") {
       const textLower = content.toLowerCase();
-      if (textLower.includes("diagnosis code") && textLower.includes("l40.9")) {
+      const hasAskedL409 = messages.some((m) => m.content.includes("I can add the diagnosis code L40.9"));
+      
+      if (!hasAskedL409 && !textLower.includes("hello") && !textLower.includes("hi") && textLower !== "hey") {
         setIsTyping(true);
         setTimeout(() => {
           setIsTyping(false);
@@ -398,15 +407,33 @@ export default function AnalysisWorkspace({ params }: PageProps) {
                   </p>
                 </div>
 
-                {/* Editable rules table */}
-                <BusinessRulesTable
-                  rules={rules}
-                  onRulesChange={setRules}
-                  additionalInfo={additionalInfo}
-                  onAdditionalInfoChange={setAdditionalInfo}
-                  onConfirm={handleConfirmRules}
-                  onContinueChat={handleContinueChat}
-                />
+                {type === "market-sizing" ? (
+                  <MarketSizingParams
+                    geoScope={geoScope}
+                    setGeoScope={setGeoScope}
+                    projHorizon={projHorizon}
+                    setProjHorizon={setProjHorizon}
+                    dataSources={dataSources}
+                    setDataSources={setDataSources}
+                    prevBase={prevBase}
+                    setPrevBase={setPrevBase}
+                    rules={rules}
+                    onRulesChange={setRules}
+                    additionalInfo={additionalInfo}
+                    onAdditionalInfoChange={setAdditionalInfo}
+                    onConfirm={handleConfirmRules}
+                    onContinueChat={handleContinueChat}
+                  />
+                ) : (
+                  <BusinessRulesTable
+                    rules={rules}
+                    onRulesChange={setRules}
+                    additionalInfo={additionalInfo}
+                    onAdditionalInfoChange={setAdditionalInfo}
+                    onConfirm={handleConfirmRules}
+                    onContinueChat={handleContinueChat}
+                  />
+                )}
               </>
             )}
           </div>
@@ -428,7 +455,18 @@ export default function AnalysisWorkspace({ params }: PageProps) {
       {/* Confirmation Modal */}
       <ConfirmationModal
         isOpen={showConfirmModal}
-        rules={rules}
+        onClose={() => setShowConfirmModal(false)}
+        rules={
+          type === "market-sizing"
+            ? [
+                { id: "ms-1", parameter: "Geographic Scope", description: "", value: geoScope, enabled: true },
+                { id: "ms-2", parameter: "Projection Horizon", description: "", value: projHorizon, enabled: true },
+                { id: "ms-3", parameter: "Data Sources", description: "", value: dataSources.join(", "), enabled: true },
+                { id: "ms-4", parameter: "Prevalence Base", description: "", value: prevBase, enabled: true },
+                ...rules,
+              ]
+            : rules
+        }
         additionalInfo={additionalInfo}
         analysisName={analysisName}
         datasetName={datasetName}

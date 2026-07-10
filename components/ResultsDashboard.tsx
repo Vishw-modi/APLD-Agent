@@ -29,6 +29,7 @@ import {
   LineChartIcon,
   FileText,
   ArrowRight,
+  Activity,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -81,6 +82,41 @@ export default function ResultsDashboard({ result, analysisName, datasetName, an
         </div>
       )}
 
+      {/* Market Sizing Specific Metrics */}
+      {isMarketSizing && (
+        <div className="rounded-2xl border border-border bg-white p-6 shadow-sm transition-shadow hover:shadow-subtle mb-6">
+          <h3 className="text-sm font-semibold text-text-primary mb-6 flex items-center gap-2">
+            <Activity className="h-4 w-4 text-primary" />
+            Market Overview & Key Statistics
+          </h3>
+          
+          <div className="grid gap-6 md:grid-cols-3 mb-8">
+            <div className="rounded-xl bg-surface/30 p-5 border border-border-light text-center transition-all hover:bg-surface/60 hover:shadow-sm hover:border-border">
+              <p className="text-sm text-text-secondary font-medium tracking-wide uppercase">Prevalence</p>
+              <p className="text-4xl font-bold text-primary mt-3">3.2%</p>
+              <p className="text-xs text-text-muted mt-2">Adult population (US)</p>
+            </div>
+            <div className="rounded-xl bg-surface/30 p-5 border border-border-light text-center transition-all hover:bg-surface/60 hover:shadow-sm hover:border-border">
+              <p className="text-sm text-text-secondary font-medium tracking-wide uppercase">Incidence</p>
+              <p className="text-4xl font-bold text-amber1 mt-3">60.4</p>
+              <p className="text-xs text-text-muted mt-2">Cases per 100,000 pt-years</p>
+            </div>
+            <div className="rounded-xl bg-surface/30 p-5 border border-border-light text-center transition-all hover:bg-surface/60 hover:shadow-sm hover:border-border">
+              <p className="text-sm text-text-secondary font-medium tracking-wide uppercase">Diagnosed Pool</p>
+              <p className="text-4xl font-bold text-green1 mt-3">8.2M</p>
+              <p className="text-xs text-text-muted mt-2">Estimated active patients</p>
+            </div>
+          </div>
+          
+          <div className="rounded-xl bg-primary/5 p-5 border border-primary/10">
+            <h4 className="text-sm font-semibold text-primary mb-2">Market Dynamics</h4>
+            <p className="text-sm text-text-secondary leading-relaxed">
+              The Psoriasis (PsO) market exhibits steady growth driven by increasing diagnosis rates and the introduction of advanced biologic therapies. The addressable population remains robust with a higher concentration of moderate-to-severe cases requiring systemic or biologic intervention. The data indicates strong market penetration opportunities in the identified target demographics, particularly among patients experiencing inadequate response to conventional standard-of-care treatments.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Charts Grid */}
       <div className="grid gap-6 lg:grid-cols-2">
         {result.funnelChartData && (
@@ -89,8 +125,8 @@ export default function ResultsDashboard({ result, analysisName, datasetName, an
               <BarChart3 className="h-4 w-4 text-primary" />
               Patient Cohort Attrition Funnel
             </h3>
-            <ResponsiveContainer width="100%" height={350}>
-              <FunnelChart>
+            <ResponsiveContainer width="100%" height={380}>
+              <FunnelChart margin={{ top: 20, right: 20, bottom: 20, left: 160 }}>
                 <Tooltip
                   contentStyle={{
                     borderRadius: "8px",
@@ -103,7 +139,55 @@ export default function ResultsDashboard({ result, analysisName, datasetName, an
                   data={result.funnelChartData}
                   isAnimationActive
                 >
-                  <LabelList position="right" fill="#4A5568" stroke="none" dataKey="name" fontSize={12} />
+                  <LabelList
+                    dataKey="name"
+                    position="left"
+                    content={(props: any) => {
+                      const { x, y, width, height, payload, value, index } = props;
+                      const cy = y + height / 2;
+                      const labelWidth = 140;
+                      let strokeColor = "#CBD5E1";
+                      let strokeW = 1;
+                      if (index === 3) { strokeColor = "#EF4444"; strokeW = 2; }
+                      if (index === 4) { strokeColor = "#22C55E"; strokeW = 2; }
+                      
+                      const nameStr = (payload && payload.name) ? payload.name : (typeof value === 'string' ? value : '');
+
+                      return (
+                        <g>
+                          <line x1={labelWidth + 10} y1={cy} x2={x} y2={cy} stroke="#A0AEC0" />
+                          <circle cx={x} cy={cy} r={3} fill="#4A5568" />
+                          <rect x={0} y={cy - 20} width={labelWidth} height={40} fill="#fff" stroke={strokeColor} strokeWidth={strokeW} />
+                          <text x={labelWidth / 2} y={cy} textAnchor="middle" dy="0.35em" fill="#1E293B" fontSize={11} fontWeight={600} width={labelWidth}>
+                            {nameStr.length > 20 ? nameStr.substring(0, 20) + '...' : nameStr}
+                          </text>
+                        </g>
+                      );
+                    }}
+                  />
+                  <LabelList
+                    dataKey="value"
+                    position="center"
+                    content={(props: any) => {
+                      const { x, y, width, height, index } = props;
+                      const maxVal = result.funnelChartData![0].realValue || result.funnelChartData![0].value;
+                      const actualValue = result.funnelChartData![index].realValue || result.funnelChartData![index].value;
+                      const percentage = Math.round((actualValue / maxVal) * 100);
+                      const formattedVal = actualValue >= 1000 ? `${(actualValue / 1000).toFixed(0)}k` : actualValue;
+                      const displayVal = index === 0 ? `*${formattedVal}` : formattedVal;
+
+                      return (
+                        <g textAnchor="middle">
+                          <text x={x + width / 2} y={y + height / 2 - 8} fill="#fff" fontSize={20} fontWeight="bold">
+                            {displayVal}
+                          </text>
+                          <text x={x + width / 2} y={y + height / 2 + 12} fill="#fff" fontSize={13} fontWeight="bold">
+                            ({percentage}%)
+                          </text>
+                        </g>
+                      );
+                    }}
+                  />
                 </Funnel>
               </FunnelChart>
             </ResponsiveContainer>
